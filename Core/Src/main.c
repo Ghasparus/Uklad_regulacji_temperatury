@@ -19,13 +19,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "eth.h"
+#include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bmp2_config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +48,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+double pomiar_temperatury;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,7 +94,10 @@ int main(void)
   MX_ETH_Init();
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
+  MX_TIM2_Init();
+  MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
+  BMP2_Init(&bmp2dev);
 
   /* USER CODE END 2 */
 
@@ -157,6 +162,15 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef * htim){
+
+	if(htim == &htim2){
+		 pomiar_temperatury = BMP2_ReadTemperature_degC(&bmp2dev);
+
+	}
+
+}
 
 /* USER CODE END 4 */
 

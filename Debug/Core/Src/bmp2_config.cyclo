@@ -1,0 +1,7 @@
+../Core/Src/bmp2_config.c:62:8:BMP2_Init	1
+../Core/Src/bmp2_config.c:106:20:bmp2_spi_read	2
+../Core/Src/bmp2_config.c:144:20:bmp2_spi_write	2
+../Core/Src/bmp2_config.c:177:6:bmp2_delay_us	1
+../Core/Src/bmp2_config.c:195:8:BMP2_ReadData	3
+../Core/Src/bmp2_config.c:226:8:BMP2_ReadTemperature_degC	3
+../Core/Src/bmp2_config.c:256:8:BMP2_ReadPressure_hPa	3
