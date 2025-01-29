@@ -1,0 +1,6 @@
+../Core/Src/obsluga.c:24:5:scale_temperature_to_pulse	32	static
+../Core/Src/obsluga.c:46:6:set_temperature_via_encoder	24	static
+../Core/Src/obsluga.c:70:6:display_on_LCD	40	static
+../Core/Src/obsluga.c:91:6:set_PWM	24	static
+../Core/Src/obsluga.c:108:6:send_via_uart	56	static
+../Core/Src/obsluga.c:126:6:recieve_via_uart	56	static

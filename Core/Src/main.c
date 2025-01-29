@@ -28,6 +28,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bmp2_config.h"
+#include "pid.h"
+#include "obsluga.h"
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,6 +40,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 
 /* USER CODE END PD */
 
@@ -49,6 +53,13 @@
 
 /* USER CODE BEGIN PV */
 double pomiar_temperatury;
+double temperaturowy_sygnal_wyjsciowy;
+int wypelnienie_pwm;
+double temperatura_zadana;
+uint8_t bufor1[7];
+PID regulator;
+int poprzednia_wartosc;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,13 +102,22 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ETH_Init();
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM2_Init();
   MX_SPI4_Init();
+  MX_TIM5_Init();
+  MX_ETH_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   BMP2_Init(&bmp2dev);
+  HAL_TIM_Base_Start_IT(&htim2);
+  LCD_Init();
+  pomiar_temperatury = BMP2_ReadTemperature_degC(&bmp2dev);
+  temperatura_zadana = (double)round(pomiar_temperatury);
+  PID_Init(&regulator, 20, 0.3, 320.0,temperatura_zadana,1.0,0.125,0,25,0,25);
+  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+  HAL_UART_Receive_IT(&huart3,&bufor1,7);
 
   /* USER CODE END 2 */
 
@@ -105,6 +125,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  //obsługa enkodera
+	  set_temperature_via_encoder(&htim3,&regulator,&temperatura_zadana,&poprzednia_wartosc);
+	  //Wysyłanie do interfejsu
+	  send_via_uart(temperatura_zadana,pomiar_temperatury,&huart3);
+
+	  //Wyświetlanie do lcd
+	  display_on_LCD(temperatura_zadana,pomiar_temperatury);
+	  //Opóźnienie całości
+	  HAL_Delay(130);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -166,10 +195,18 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef * htim){
 
 	if(htim == &htim2){
-		 pomiar_temperatury = BMP2_ReadTemperature_degC(&bmp2dev);
-
+		pomiar_temperatury = BMP2_ReadTemperature_degC(&bmp2dev);
+		temperaturowy_sygnal_wyjsciowy = PID_Compute(&regulator,pomiar_temperatury);
+		wypelnienie_pwm = scale_temperature_to_pulse(temperaturowy_sygnal_wyjsciowy);
+		set_PWM(&htim5,TIM_CHANNEL_1,wypelnienie_pwm);
 	}
 
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart3){
+		recieve_via_uart(&huart3,&temperatura_zadana,&bufor1);
+	}
 }
 
 /* USER CODE END 4 */

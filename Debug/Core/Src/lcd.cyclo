@@ -1,0 +1,8 @@
+../Core/Src/lcd.c:11:6:LCD_Delay	1
+../Core/Src/lcd.c:24:6:LCD_SendNibble	5
+../Core/Src/lcd.c:52:6:LCD_SendCommand	1
+../Core/Src/lcd.c:70:6:LCD_SendData	1
+../Core/Src/lcd.c:86:6:LCD_Init	1
+../Core/Src/lcd.c:117:6:LCD_Clear	1
+../Core/Src/lcd.c:129:6:LCD_SetCursor	3
+../Core/Src/lcd.c:146:6:LCD_Print	2
